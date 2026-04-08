@@ -612,7 +612,7 @@ async function loadMyFiles(folderId=null){
   }
 
   // Load sessions
-  let sessQuery='signing_sessions?admin_id=eq.'+currentAdmin.id+'&deleted=eq.false&order=created_at.desc&select=id,title,created_at,completed,folder_id';
+  let sessQuery='signing_sessions?admin_id=eq.'+currentAdmin.id+'&deleted=eq.false&order=created_at.desc&select=id,title,created_at,completed,folder_id,pdf_base64,merged_pdf_base64';
   if(folderId) sessQuery+='&folder_id=eq.'+folderId;
   else sessQuery+='&folder_id=is.null';
   const sessions=await sb(sessQuery);
@@ -1311,7 +1311,14 @@ async function savePDF(){
 
 // ── UTILS ──
 function arrayBufferToBase64(b){let s='';const u=new Uint8Array(b);for(let i=0;i<u.byteLength;i++)s+=String.fromCharCode(u[i]);return btoa(s);}
-function base64ToUint8Array(b64){const b=atob(b64);const a=new Uint8Array(b.length);for(let i=0;i<b.length;i++)a[i]=b.charCodeAt(i);return a;}
+function base64ToUint8Array(b64){
+  // Strip data URI prefix if present (e.g. "data:application/pdf;base64,...")
+  const raw=b64.includes(',') ? b64.split(',')[1] : b64;
+  const b=atob(raw);
+  const a=new Uint8Array(b.length);
+  for(let i=0;i<b.length;i++) a[i]=b.charCodeAt(i);
+  return a;
+}
 
 // ── AUTO-LOAD FROM TOKEN ──
 const urlToken=new URLSearchParams(location.search).get('token');
