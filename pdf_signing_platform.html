@@ -835,13 +835,15 @@ async function openExistingSession(s, signers){
   // Fetch full signers with all fields
   const fullSigners=await sb('signers?session_id=eq.'+s.id+'&select=*');
 
-  // Restore sig boxes on top of PDF
+  // Restore sig boxes — coords stored as % in DB
   sigBoxes=[];
   if(fullSigners){
     for(const r of fullSigners){
       const wrap=document.querySelector(`.page-wrap[data-page="${r.page_num}"]`);
       if(!wrap) continue;
-      addSigBox(wrap, r.box_x, r.box_y, r.name, r.page_num, true);
+      // Pass % directly using the special _w/_h/_page trick
+      addSigBox(wrap, r.box_x, r.box_y, r.name,
+        {_page: r.page_num, _w: r.box_w, _h: r.box_h});
       const b=sigBoxes[sigBoxes.length-1];
       b.dbId=r.id; b.token=r.token; b.signed=r.signed;
       if(r.signed){
@@ -929,10 +931,11 @@ async function renderAdminPage(num){
   hitC.addEventListener('click',e=>{
     if(adminTool!=='place')return;
     const r=hitC.getBoundingClientRect();
-    const scX=vp.width/r.width,scY=vp.height/r.height;
-    const x=(e.clientX-r.left)*scX,y=(e.clientY-r.top)*scY;
+    // Use canvas pixel coords (not CSS coords) for storage
+    const scX=vp.width/r.width, scY=vp.height/r.height;
+    const x=(e.clientX-r.left)*scX, y=(e.clientY-r.top)*scY;
     const name=document.getElementById('signerName').value.trim()||'Signer';
-    addSigBox(wrap,x,y,name,num);
+    addSigBox(wrap, x, y, name, num, vp.width, vp.height);
   });
   wrap.appendChild(pdfC);wrap.appendChild(drawC);wrap.appendChild(hitC);
   pdfArea.appendChild(wrap);
@@ -945,19 +948,41 @@ function setTool(t){
   document.getElementById('btnMove').classList.toggle('on',t==='move');
 }
 
-function addSigBox(wrap,x,y,label,pageNum,noAnim=false){
-  if(!wrap)return;
+function addSigBox(wrap, x, y, label, pageNum, pageW, pageH, noAnim=false){
+  if(!wrap) return;
+  // If pageW/pageH provided, x/y are in canvas pixels — convert to %
+  // If not provided (restoring from %), x/y are already %
+  let xPct, yPct, wPct, hPct;
+  if(pageW && pageH){
+    xPct = (x - 90) / pageW * 100;
+    yPct = (y - 30) / pageH * 100;
+    wPct = 190 / pageW * 100;
+    hPct = 62  / pageH * 100;
+  } else {
+    // restoring — x,y,w,h passed as % directly
+    xPct = x; yPct = y; wPct = pageNum._w; hPct = pageNum._h;
+    pageNum = pageNum._page;
+  }
   boxCounter++;
   const id='b'+boxCounter;
   const el=document.createElement('div');
-  el.className='sig-box';el.id=id;
-  el.style.left=(x-90)+'px';el.style.top=(y-30)+'px';
-  el.style.width='190px';el.style.height='62px';
+  el.className='sig-box'; el.id=id;
+  el.style.left  = xPct+'%';
+  el.style.top   = yPct+'%';
+  el.style.width = wPct+'%';
+  el.style.height= hPct+'%';
   el.innerHTML=`<span class="bl">${label}</span><span class="bh">Signature field</span>
     <button class="bdel" onclick="removeBox('${id}')">×</button><div class="brz"></div>`;
-  makeDrag(el);makeResize(el.querySelector('.brz'),el);
+  makeDrag(el); makeResize(el.querySelector('.brz'), el, wrap);
   wrap.appendChild(el);
-  sigBoxes.push({id,el,label,pageNum,signed:false,dbId:null,token:null});
+  sigBoxes.push({id, el, label, pageNum, signed:false, dbId:null, token:null,
+    getPct:()=>({
+      xPct: parseFloat(el.style.left),
+      yPct: parseFloat(el.style.top),
+      wPct: parseFloat(el.style.width),
+      hPct: parseFloat(el.style.height)
+    })
+  });
   updateBoxList();
 }
 
@@ -983,17 +1008,35 @@ function updateBoxList(){
 function makeDrag(el){
   let drag=false,ox,oy,sx,sy;
   el.addEventListener('mousedown',e=>{
-    if(e.target.classList.contains('bdel')||e.target.classList.contains('brz'))return;
-    if(adminTool!=='move')return;
-    drag=true;sx=e.clientX;sy=e.clientY;ox=parseInt(el.style.left)||0;oy=parseInt(el.style.top)||0;e.preventDefault();
+    if(e.target.classList.contains('bdel')||e.target.classList.contains('brz')) return;
+    if(adminTool!=='move') return;
+    drag=true; sx=e.clientX; sy=e.clientY;
+    ox=parseFloat(el.style.left)||0;
+    oy=parseFloat(el.style.top)||0;
+    e.preventDefault();
   });
-  document.addEventListener('mousemove',e=>{if(!drag)return;el.style.left=(ox+e.clientX-sx)+'px';el.style.top=(oy+e.clientY-sy)+'px';});
+  document.addEventListener('mousemove',e=>{
+    if(!drag) return;
+    const wrap=el.parentElement;
+    const pw=wrap.offsetWidth, ph=wrap.offsetHeight;
+    el.style.left = (ox + (e.clientX-sx)/pw*100)+'%';
+    el.style.top  = (oy + (e.clientY-sy)/ph*100)+'%';
+  });
   document.addEventListener('mouseup',()=>drag=false);
 }
-function makeResize(handle,el){
+function makeResize(handle, el, wrap){
   let drag=false,sx,sy,sw,sh;
-  handle.addEventListener('mousedown',e=>{drag=true;sx=e.clientX;sy=e.clientY;sw=el.offsetWidth;sh=el.offsetHeight;e.preventDefault();e.stopPropagation();});
-  document.addEventListener('mousemove',e=>{if(!drag)return;el.style.width=Math.max(100,sw+e.clientX-sx)+'px';el.style.height=Math.max(44,sh+e.clientY-sy)+'px';});
+  handle.addEventListener('mousedown',e=>{
+    drag=true; sx=e.clientX; sy=e.clientY;
+    sw=el.offsetWidth; sh=el.offsetHeight;
+    e.preventDefault(); e.stopPropagation();
+  });
+  document.addEventListener('mousemove',e=>{
+    if(!drag) return;
+    const pw=wrap.offsetWidth, ph=wrap.offsetHeight;
+    el.style.width  = Math.max(8, (sw+e.clientX-sx)/pw*100)+'%';
+    el.style.height = Math.max(4, (sh+e.clientY-sy)/ph*100)+'%';
+  });
   document.addEventListener('mouseup',()=>drag=false);
 }
 
@@ -1019,10 +1062,12 @@ async function publishSession(){
   publishedSessionId=sessRes[0].id;
   const linksArea=document.getElementById('linksArea');linksArea.innerHTML='';
   for(const b of sigBoxes){
-    const box=b.el;
-    const data={session_id:publishedSessionId,name:b.label,page_num:b.pageNum,
-      box_x:parseInt(box.style.left)||0,box_y:parseInt(box.style.top)||0,
-      box_w:box.offsetWidth,box_h:box.offsetHeight};
+    const pg=pdfPages.find(p=>p.num===b.pageNum);
+    if(!pg) continue;
+    const {xPct,yPct,wPct,hPct}=b.getPct();
+    // Store as % in DB — reconstruct canvas px on load
+    const data={session_id:publishedSessionId, name:b.label, page_num:b.pageNum,
+      box_x: xPct, box_y: yPct, box_w: wPct, box_h: hPct};
     const res=await sb('signers','POST',data);
     if(res&&res[0]){
       b.dbId=res[0].id;b.token=res[0].token;
@@ -1076,19 +1121,23 @@ function updateProgress(signers){
 }
 
 async function drawSignaturesOnCanvas(signers){
-  if(!signers)return;
+  if(!signers) return;
   const signed=signers.filter(r=>r.signed&&r.sig_data);
   await Promise.all(signed.map(r=>new Promise(resolve=>{
     const pg=pdfPages.find(p=>p.num===r.page_num);
     if(!pg){resolve();return;}
+    // Convert % coords to canvas pixels
+    const cw=pg.pdfC.width, ch=pg.pdfC.height;
+    const bx=r.box_x/100*cw, by=r.box_y/100*ch;
+    const bw=r.box_w/100*cw, bh=r.box_h/100*ch;
     const ctx=pg.drawC.getContext('2d');
     const img=new Image();
     img.onload=()=>{
       ctx.fillStyle='rgba(255,255,255,.94)';
-      ctx.fillRect(r.box_x+1,r.box_y+1,r.box_w-2,r.box_h-2);
-      ctx.drawImage(img,r.box_x+6,r.box_y+5,r.box_w-12,r.box_h-10);
-      ctx.strokeStyle='#4caf50';ctx.lineWidth=1.5;
-      ctx.strokeRect(r.box_x+1,r.box_y+1,r.box_w-2,r.box_h-2);
+      ctx.fillRect(bx+1, by+1, bw-2, bh-2);
+      ctx.drawImage(img, bx+6, by+5, bw-12, bh-10);
+      ctx.strokeStyle='#4caf50'; ctx.lineWidth=1.5;
+      ctx.strokeRect(bx+1, by+1, bw-2, bh-2);
       resolve();
     };
     img.onerror=resolve;
@@ -1242,11 +1291,17 @@ async function signMyBox(){
   const r=mySignerRow;
   const pg=managerPdfPages.find(p=>p.num===r.page_num);
   if(pg){
+    const cw=pg.pdfC.width, ch=pg.pdfC.height;
+    const bx=r.box_x/100*cw, by=r.box_y/100*ch;
+    const bw=r.box_w/100*cw, bh=r.box_h/100*ch;
     const ctx=pg.drawC.getContext('2d');
-    ctx.clearRect(r.box_x-1,r.box_y-1,r.box_w+2,r.box_h+2);
-    ctx.fillStyle='rgba(255,255,255,.94)';ctx.fillRect(r.box_x+1,r.box_y+1,r.box_w-2,r.box_h-2);
-    const img=new Image();img.onload=()=>ctx.drawImage(img,r.box_x+4,r.box_y+4,r.box_w-8,r.box_h-8);img.src=managerSig;
-    ctx.strokeStyle='#4caf50';ctx.lineWidth=1.5;ctx.strokeRect(r.box_x+1,r.box_y+1,r.box_w-2,r.box_h-2);
+    ctx.clearRect(bx-1, by-1, bw+2, bh+2);
+    ctx.fillStyle='rgba(255,255,255,.94)'; ctx.fillRect(bx+1,by+1,bw-2,bh-2);
+    const img=new Image();
+    img.onload=()=>ctx.drawImage(img, bx+4, by+4, bw-8, bh-8);
+    img.src=managerSig;
+    ctx.strokeStyle='#4caf50'; ctx.lineWidth=1.5;
+    ctx.strokeRect(bx+1, by+1, bw-2, bh-2);
   }
   document.getElementById('signMyBoxBtn').textContent='✅ Signed!';
   document.getElementById('alreadySigned').style.display='block';
