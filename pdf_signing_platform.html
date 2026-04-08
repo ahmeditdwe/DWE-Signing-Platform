@@ -1290,18 +1290,10 @@ async function signMyBox(){
   if(!res){toast('Error saving — try again');document.getElementById('signMyBoxBtn').disabled=false;return;}
   const r=mySignerRow;
   const pg=managerPdfPages.find(p=>p.num===r.page_num);
-  if(pg){
-    const cw=pg.pdfC.width, ch=pg.pdfC.height;
-    const bx=r.box_x/100*cw, by=r.box_y/100*ch;
-    const bw=r.box_w/100*cw, bh=r.box_h/100*ch;
-    const ctx=pg.drawC.getContext('2d');
-    ctx.clearRect(bx-1, by-1, bw+2, bh+2);
-    ctx.fillStyle='rgba(255,255,255,.94)'; ctx.fillRect(bx+1,by+1,bw-2,bh-2);
+  if(pg && pg._drawBox){
     const img=new Image();
-    img.onload=()=>ctx.drawImage(img, bx+4, by+4, bw-8, bh-8);
+    img.onload=()=>pg._drawBox(true, img);
     img.src=managerSig;
-    ctx.strokeStyle='#4caf50'; ctx.lineWidth=1.5;
-    ctx.strokeRect(bx+1, by+1, bw-2, bh-2);
   }
   document.getElementById('signMyBoxBtn').textContent='✅ Signed!';
   document.getElementById('alreadySigned').style.display='block';
