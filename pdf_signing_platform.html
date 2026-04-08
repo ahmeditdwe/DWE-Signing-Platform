@@ -249,11 +249,82 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--te
 #signerInfoBox strong{display:block;font-size:14px;color:var(--text);margin-bottom:2px;}
 #signerInfoBox span{font-size:11px;color:var(--text3);}
 
-/* Drop overlay */
-#dropOvl{position:fixed;inset:0;background:rgba(0,0,0,.88);display:flex;align-items:center;justify-content:center;z-index:200;flex-direction:column;gap:12px;}
-#dropOvl.h{display:none;}
-#dropOvl p{font-size:16px;color:var(--text2);}
-#fileInput{display:none;}
+/* ── ONBOARDING OVERLAY ── */
+#onboardingOverlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:500;
+  display:flex;align-items:center;justify-content:center;
+  backdrop-filter:blur(4px);
+}
+#onboardingOverlay.h{display:none;}
+.ob-card{
+  background:var(--bg2);border:1px solid var(--border);border-radius:16px;
+  width:480px;max-width:95vw;overflow:hidden;
+  box-shadow:0 30px 80px rgba(0,0,0,.6);
+}
+.ob-header{
+  background:linear-gradient(135deg,#1a0d00,#2a1500);
+  padding:28px 32px 20px;border-bottom:1px solid var(--border);
+  text-align:center;
+}
+.ob-header .ob-logo{font-size:20px;font-weight:800;color:var(--orange);letter-spacing:1px;margin-bottom:4px;}
+.ob-header .ob-logo span{color:var(--text);}
+.ob-header h2{font-size:17px;font-weight:700;margin-bottom:4px;}
+.ob-header p{font-size:12px;color:var(--text3);}
+.ob-steps{padding:24px 32px;display:flex;flex-direction:column;gap:0;}
+.ob-step{display:flex;gap:14px;align-items:flex-start;padding:14px 0;border-bottom:1px solid var(--border);}
+.ob-step:last-child{border-bottom:none;}
+.ob-step-num{
+  width:32px;height:32px;border-radius:50%;background:var(--orange);
+  color:#fff;font-size:13px;font-weight:800;display:flex;align-items:center;
+  justify-content:center;flex-shrink:0;margin-top:1px;
+}
+.ob-step-body h4{font-size:13px;font-weight:700;margin-bottom:3px;}
+.ob-step-body p{font-size:12px;color:var(--text2);line-height:1.6;}
+.ob-signer-box{
+  margin:0 32px 20px;background:#1a0d00;border:1.5px solid var(--orange);
+  border-radius:8px;padding:12px 16px;display:flex;align-items:center;gap:12px;
+}
+.ob-signer-box .ob-avatar{
+  width:40px;height:40px;border-radius:50%;background:var(--orange);
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;font-weight:800;color:#fff;flex-shrink:0;
+}
+.ob-signer-box .ob-signer-name{font-size:14px;font-weight:700;}
+.ob-signer-box .ob-signer-doc{font-size:11px;color:var(--text3);margin-top:2px;}
+.ob-footer{padding:0 32px 28px;display:flex;flex-direction:column;gap:10px;}
+.ob-start-btn{
+  width:100%;padding:14px;background:var(--orange);color:#fff;border:none;
+  border-radius:8px;font-size:15px;font-weight:800;cursor:pointer;
+  transition:background .2s;letter-spacing:.3px;
+}
+.ob-start-btn:hover{background:var(--orange-d);}
+.ob-note{font-size:11px;color:var(--text3);text-align:center;line-height:1.5;}
+
+/* ── PULSE ANIMATION on signature box ── */
+@keyframes pulse-border{
+  0%{box-shadow:0 0 0 0 rgba(243,111,42,.6);}
+  70%{box-shadow:0 0 0 10px rgba(243,111,42,0);}
+  100%{box-shadow:0 0 0 0 rgba(243,111,42,0);}
+}
+.sig-box-highlight{animation:pulse-border 1.5s ease-out 3;}
+
+/* ── STEP INDICATOR in manager panel ── */
+.sign-steps{display:flex;gap:0;margin-bottom:4px;}
+.sign-step{flex:1;text-align:center;padding:6px 2px;font-size:10px;font-weight:700;
+  color:var(--text3);border-bottom:2px solid var(--border);transition:all .2s;}
+.sign-step.active{color:var(--orange);border-bottom-color:var(--orange);}
+.sign-step.done{color:var(--green-l);border-bottom-color:var(--green-l);}
+
+/* ── SCROLL HINT ── */
+#scrollHint{
+  position:fixed;bottom:80px;left:50%;transform:translateX(-50%);
+  background:var(--orange);color:#fff;padding:10px 20px;border-radius:24px;
+  font-size:12px;font-weight:700;z-index:100;display:flex;align-items:center;gap:8px;
+  box-shadow:0 4px 20px rgba(243,111,42,.4);cursor:pointer;
+  animation:bounce .8s ease-in-out infinite alternate;
+}
+@keyframes bounce{from{transform:translateX(-50%) translateY(0);}to{transform:translateX(-50%) translateY(-6px);}}
+#scrollHint.h{display:none;}
 
 /* Toast */
 #toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--bg3);color:var(--text);padding:10px 20px;border-radius:8px;font-size:12px;z-index:300;opacity:0;transition:opacity .3s;pointer-events:none;border:1px solid var(--border);}
@@ -404,6 +475,12 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--te
       <div class="mr-sub" id="mrSub">Loading your document…</div>
     </div>
     <div class="mr-body">
+      <!-- Step indicator -->
+      <div class="sign-steps" id="signSteps">
+        <div class="sign-step active" id="step1">① Choose</div>
+        <div class="sign-step" id="step2">② Confirm</div>
+        <div class="sign-step" id="step3">③ Sign</div>
+      </div>
       <div id="signerInfoBox">
         <strong id="siName"></strong>
         <span id="siTitle"></span>
@@ -463,8 +540,62 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--te
   </div>
 </div>
 
-<!-- MODAL -->
-<div class="modal-backdrop h" id="modalBackdrop">
+<!-- ONBOARDING OVERLAY -->
+<div id="onboardingOverlay" class="h">
+  <div class="ob-card">
+    <div class="ob-header">
+      <div class="ob-logo">DWE <span>Sign</span></div>
+      <h2 id="obTitle">You have a document to sign</h2>
+      <p id="obDocTitle"></p>
+    </div>
+    <div class="ob-signer-box">
+      <div class="ob-avatar" id="obAvatar">?</div>
+      <div>
+        <div class="ob-signer-name" id="obSignerName">Loading…</div>
+        <div class="ob-signer-doc" id="obSignerDoc">Signing request</div>
+      </div>
+    </div>
+    <div class="ob-steps">
+      <div class="ob-step">
+        <div class="ob-step-num">1</div>
+        <div class="ob-step-body">
+          <h4>Review the document</h4>
+          <p>Scroll through the PDF to read its contents before signing.</p>
+        </div>
+      </div>
+      <div class="ob-step">
+        <div class="ob-step-num">2</div>
+        <div class="ob-step-body">
+          <h4>Choose how to sign</h4>
+          <p>Draw your signature with a mouse, type your name, or upload a signature image from the panel on the right.</p>
+        </div>
+      </div>
+      <div class="ob-step">
+        <div class="ob-step-num">3</div>
+        <div class="ob-step-body">
+          <h4>Click "Sign My Box"</h4>
+          <p>Your signature will be placed in the highlighted orange box on the document. The box will turn green when signed.</p>
+        </div>
+      </div>
+    </div>
+    <div class="ob-footer">
+      <button class="ob-start-btn" onclick="dismissOnboarding()">📄 Review &amp; Sign Document →</button>
+      <p class="ob-note">By signing, you confirm that you have read and agree to the contents of this document.</p>
+    </div>
+  </div>
+</div>
+
+<!-- SCROLL HINT -->
+<div id="scrollHint" class="h" onclick="scrollToBox()">
+  ✍️ Your signature box is below — click to jump to it ↓
+</div>
+
+<!-- DROP OVERLAY -->
+<div id="dropOvl" class="h">
+  <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+  <p>Drop PDF here</p>
+</div>
+<input type="file" id="fileInput" accept=".pdf">
   <div class="modal" id="modalBox"></div>
 </div>
 
@@ -1171,6 +1302,8 @@ async function loadSignerView(token){
   const sess=await sb('signing_sessions?id=eq.'+mySignerRow.session_id+'&select=*');
   if(!sess||!sess[0]){toast('Session not found');return;}
   document.getElementById('mrSub').textContent=sess[0].title||'Signing Request';
+  // Show onboarding after short delay so PDF starts loading in bg
+  setTimeout(()=>showOnboarding(mySignerRow, sess[0].title), 400);
   const info=document.getElementById('signerInfoBox');
   info.style.display='block';
   document.getElementById('siName').textContent=mySignerRow.name;
@@ -1214,15 +1347,73 @@ async function loadSignerView(token){
   }
 }
 
-// ── SIGNATURE METHODS ──
+// ── ONBOARDING ──
+function showOnboarding(signerRow, sessionTitle){
+  const name = signerRow.name || 'Signer';
+  document.getElementById('obSignerName').textContent = name;
+  document.getElementById('obAvatar').textContent = name.charAt(0).toUpperCase();
+  document.getElementById('obDocTitle').textContent = sessionTitle || 'Signing Request';
+  document.getElementById('obTitle').textContent = signerRow.signed
+    ? 'You have already signed this document'
+    : 'You have a document to sign';
+  if(signerRow.signed){
+    document.querySelector('.ob-start-btn').textContent = '📄 View Document';
+    document.querySelector('.ob-note').textContent = 'This document has already been signed by you.';
+  }
+  document.getElementById('onboardingOverlay').classList.remove('h');
+}
+
+function dismissOnboarding(){
+  document.getElementById('onboardingOverlay').classList.add('h');
+  // Show scroll hint if box is not in viewport
+  setTimeout(()=>{
+    if(!mySignerRow || mySignerRow.signed) return;
+    const pg=managerPdfPages.find(p=>p.num===mySignerRow.page_num);
+    if(!pg) return;
+    const rect=pg.pdfC.getBoundingClientRect();
+    const inView=rect.top < window.innerHeight && rect.bottom > 0;
+    if(!inView) document.getElementById('scrollHint').classList.remove('h');
+    // Pulse the box
+    if(pg.pdfC.parentElement){
+      pg.pdfC.parentElement.classList.add('sig-box-highlight');
+      setTimeout(()=>pg.pdfC.parentElement.classList.remove('sig-box-highlight'),5000);
+    }
+  }, 300);
+}
+
+function scrollToBox(){
+  document.getElementById('scrollHint').classList.add('h');
+  const pg=managerPdfPages.find(p=>p.num===mySignerRow?.page_num);
+  if(pg) pg.pdfC.scrollIntoView({behavior:'smooth', block:'center'});
+}
+
+// Hide scroll hint when user scrolls near the box
+document.addEventListener('scroll', ()=>{
+  if(!mySignerRow) return;
+  const pg=managerPdfPages.find(p=>p.num===mySignerRow.page_num);
+  if(!pg) return;
+  const rect=pg.pdfC.getBoundingClientRect();
+  if(rect.top < window.innerHeight && rect.bottom > 0)
+    document.getElementById('scrollHint').classList.add('h');
+}, true);
+
+// Step indicator updater
+function setSignStep(n){
+  [1,2,3].forEach(i=>{
+    const el=document.getElementById('step'+i);
+    if(!el) return;
+    el.className='sign-step'+(i<n?' done':i===n?' active':'');
+  });
+}
 function setSigMethod(m){
-  sigMethod=m;managerSig=null;
+  sigMethod=m; managerSig=null;
   document.querySelectorAll('.smt').forEach((el,i)=>el.classList.toggle('active',['draw','type','upload'][i]===m));
   document.getElementById('drawPad').style.display=m==='draw'?'flex':'none';
   document.getElementById('typePad').style.display=m==='type'?'flex':'none';
   document.getElementById('uploadPad').style.display=m==='upload'?'flex':'none';
   document.getElementById('signMyBoxBtn').disabled=true;
   document.getElementById('sigMsg').textContent='';
+  setSignStep(1);
 }
 
 // Draw
@@ -1277,7 +1468,12 @@ function confirmSig(){
   }
   if(!managerSig){toast('Please provide a signature first');return;}
   document.getElementById('signMyBoxBtn').disabled=false;
-  document.getElementById('sigMsg').textContent='✓ Signature ready — click Sign My Box';
+  document.getElementById('sigMsg').textContent='✓ Ready — click "Sign My Box" below';
+  setSignStep(2);
+  // Scroll hint + pulse box
+  document.getElementById('scrollHint').classList.remove('h');
+  const pg=managerPdfPages.find(p=>p.num===mySignerRow?.page_num);
+  if(pg) pg.pdfC.parentElement.classList.add('sig-box-highlight');
 }
 
 async function signMyBox(){
@@ -1299,6 +1495,8 @@ async function signMyBox(){
   document.getElementById('alreadySigned').style.display='block';
   document.getElementById('sigMethodSection').style.display='none';
   document.getElementById('sigMsg').textContent='';
+  document.getElementById('scrollHint').classList.add('h');
+  setSignStep(3);
   toast('Signature saved!',3000);
 }
 
