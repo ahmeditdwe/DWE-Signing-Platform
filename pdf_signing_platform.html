@@ -331,7 +331,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--te
 <div class="screen" id="adminScreen">
   <div id="adminLeft">
     <div id="adminToolbar">
-      <button onclick="showScreen('landingScreen');document.getElementById('modeTag').style.display='none';">← Back</button>
+      <button onclick="goAdmin('files')">← Back</button>
       <button id="uploadBtn" onclick="document.getElementById('fileInput').click()">📂 Upload PDF</button>
       <input type="file" id="fileInput" accept=".pdf">
       <button class="tbtn on" id="btnPlace" onclick="setTool('place')">＋ Place Box</button>
@@ -346,7 +346,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--te
     </div>
     <div id="myFiles">
       <div id="myFilesHeader">
-        <button class="mf-btn mf-btn-ghost" onclick="showScreen('landingScreen');document.getElementById('modeTag').style.display='none';">← Back</button>
+        <button class="mf-btn mf-btn-ghost" onclick="showScreen('landingScreen');document.getElementById('modeTag').style.display='none';allFolders=[];currentFolderId=null;">← Back</button>
         <h3>My Documents</h3>
         <div class="spacer"></div>
         <button class="mf-btn mf-btn-ghost" onclick="openModal('folder')">📁 New Folder</button>
@@ -568,15 +568,21 @@ function goAdmin(mode){
   document.getElementById('modeTag').className='modeTag tag-admin';
   document.getElementById('modeTag').textContent='ADMIN';
   showScreen('adminScreen');
+  const pdfArea=document.getElementById('adminPdfArea');
+  const toolbar=document.getElementById('adminToolbar');
+  const myFiles=document.getElementById('myFiles');
   if(mode==='files'){
-    document.getElementById('adminPdfArea').style.display='none';
-    document.getElementById('adminToolbar').style.display='none';
-    document.getElementById('myFiles').style.display='flex';
+    pdfArea.style.display='none';
+    toolbar.style.display='none';
+    myFiles.style.display='flex';
     loadMyFiles(null);
   } else {
-    document.getElementById('adminPdfArea').style.display='flex';
-    document.getElementById('adminToolbar').style.display='flex';
-    document.getElementById('myFiles').style.display='none';
+    pdfArea.style.display='flex';
+    toolbar.style.display='flex';
+    myFiles.style.display='none';
+    // Only show drop overlay if no PDF loaded yet
+    if(!pdfDoc) document.getElementById('dropOvl').classList.remove('h');
+    else document.getElementById('dropOvl').classList.add('h');
   }
 }
 
@@ -804,14 +810,21 @@ async function downloadStoredPDF(sessionId){
   toast('Downloaded!',2000);
 }
 
-async function openExistingSession(s,signers){
+async function openExistingSession(s, signers){
+  // Switch view
   document.getElementById('adminPdfArea').style.display='flex';
   document.getElementById('adminToolbar').style.display='flex';
   document.getElementById('myFiles').style.display='none';
   document.getElementById('dropOvl').classList.add('h');
+  document.getElementById('modeTag').style.display='flex';
   publishedSessionId=s.id;
 
-  // Restore PDF — wait for all pages to fully render
+  // Show loading state
+  document.getElementById('aStatus').textContent='Loading…';
+  document.getElementById('publishBtn').disabled=true;
+  document.getElementById('publishBtn').textContent='✓ Published';
+
+  // Render PDF
   const pdfData=base64ToUint8Array(s.pdf_base64);
   pdfDoc=await pdfjsLib.getDocument({data:pdfData}).promise;
   pdfPages=[];
@@ -819,44 +832,58 @@ async function openExistingSession(s,signers){
   for(let i=1;i<=pdfDoc.numPages;i++) await renderAdminPage(i);
   document.getElementById('aStatus').textContent=s.title||'Document';
 
-  // Restore boxes
+  // Fetch full signers with all fields
+  const fullSigners=await sb('signers?session_id=eq.'+s.id+'&select=*');
+
+  // Restore sig boxes on top of PDF
   sigBoxes=[];
-  if(signers){
-    for(const r of signers){
+  if(fullSigners){
+    for(const r of fullSigners){
       const wrap=document.querySelector(`.page-wrap[data-page="${r.page_num}"]`);
-      addSigBox(wrap,r.box_x,r.box_y,r.name,r.page_num,true);
+      if(!wrap) continue;
+      addSigBox(wrap, r.box_x, r.box_y, r.name, r.page_num, true);
       const b=sigBoxes[sigBoxes.length-1];
-      b.dbId=r.id;b.token=r.token;b.signed=r.signed;
-      if(r.signed){b.el.classList.add('signed-box');b.el.querySelector('.bh').textContent='Signed ✓';}
+      b.dbId=r.id; b.token=r.token; b.signed=r.signed;
+      if(r.signed){
+        b.el.classList.add('signed-box');
+        b.el.querySelector('.bh').textContent='Signed ✓';
+        if(b.el.querySelector('.bdel')) b.el.querySelector('.bdel').style.display='none';
+      }
     }
   }
   updateBoxList();
 
-  // Fetch full signer data (with sig_data) and draw onto canvases
-  const fullSigners=await sb('signers?session_id=eq.'+s.id+'&select=*');
-  await drawSignaturesOnCanvas(fullSigners);
+  // Draw signatures onto canvas (await so they appear before anything else)
+  await drawSignaturesOnCanvas(fullSigners||[]);
 
-  // Populate links tab
-  const linksArea=document.getElementById('linksArea');linksArea.innerHTML='';
-  sigBoxes.forEach(b=>{
-    if(!b.token)return;
-    const link=location.href.split('?')[0]+'?token='+b.token;
-    const card=document.createElement('div');card.className='link-card';
-    card.innerHTML=`<div class="lc-name">${b.label}</div><div class="lc-url">${link}</div>
-      <div class="lc-row"><button class="lc-copy" onclick="copyLink('${link}',this)">📋 Copy</button></div>`;
-    linksArea.appendChild(card);
-  });
+  // Rebuild Links tab from DB — works even after page refresh
+  const linksArea=document.getElementById('linksArea');
+  linksArea.innerHTML='';
+  if(fullSigners&&fullSigners.length>0){
+    fullSigners.forEach(r=>{
+      if(!r.token) return;
+      const link=location.href.split('?')[0]+'?token='+r.token;
+      const card=document.createElement('div'); card.className='link-card';
+      card.innerHTML=`<div class="lc-name">${r.name}</div>
+        <div class="lc-url" title="${link}">${link}</div>
+        <div class="lc-row">
+          <button class="lc-copy" onclick="copyLink('${link}',this)">📋 Copy</button>
+        </div>`;
+      linksArea.appendChild(card);
+    });
+  }
 
-  updateProgress(fullSigners||signers);
+  // Status tab
+  updateProgress(fullSigners||[]);
   const allSigned=fullSigners&&fullSigners.length>0&&fullSigners.every(r=>r.signed);
   document.getElementById('saveBtn').disabled=false;
   if(allSigned){
     document.getElementById('allSignedBanner').style.display='block';
-    // If already has merged PDF stored, just enable download — no need to regenerate
-    const hasMerged=s.merged_pdf_base64;
-    if(!hasMerged) await generateAndStoreMergedPDF();
+    if(!s.merged_pdf_base64) await generateAndStoreMergedPDF();
+  } else {
+    document.getElementById('allSignedBanner').style.display='none';
+    startPolling();
   }
-  startPolling();
   switchAdminTab('status');
 }
 
