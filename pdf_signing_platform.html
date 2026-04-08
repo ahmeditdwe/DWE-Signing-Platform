@@ -1235,17 +1235,21 @@ async function loadSignerView(token){
   const r=mySignerRow;
   const pg=managerPdfPages.find(p=>p.num===r.page_num);
   if(pg){
+    // box coords are stored as % — convert to canvas pixels
+    const cw=pg.pdfC.width, ch=pg.pdfC.height;
+    const bx=r.box_x/100*cw, by=r.box_y/100*ch;
+    const bw=r.box_w/100*cw, bh=r.box_h/100*ch;
     const ctx=pg.drawC.getContext('2d');
-    ctx.strokeStyle=r.signed?'#4caf50':'var(--orange,#F36F2A)';
+    ctx.strokeStyle=r.signed?'#4caf50':'#F36F2A';
     ctx.lineWidth=2;ctx.setLineDash([6,3]);
-    ctx.strokeRect(r.box_x,r.box_y,r.box_w,r.box_h);ctx.setLineDash([]);
+    ctx.strokeRect(bx,by,bw,bh);ctx.setLineDash([]);
     ctx.fillStyle=r.signed?'rgba(76,175,80,.08)':'rgba(243,111,42,.06)';
-    ctx.fillRect(r.box_x,r.box_y,r.box_w,r.box_h);
+    ctx.fillRect(bx,by,bw,bh);
     ctx.fillStyle=r.signed?'#4caf50':'#F36F2A';
     ctx.font='bold 12px Arial';ctx.textAlign='center';
-    ctx.fillText(r.signed?'✓ Signed':r.name+' — Sign here',r.box_x+r.box_w/2,r.box_y+r.box_h/2+5);
+    ctx.fillText(r.signed?'✓ Signed':r.name+' — Sign here',bx+bw/2,by+bh/2+5);
     ctx.textAlign='left';
-    if(r.signed&&r.sig_data){const img=new Image();img.onload=()=>ctx.drawImage(img,r.box_x+4,r.box_y+4,r.box_w-8,r.box_h-8);img.src=r.sig_data;}
+    if(r.signed&&r.sig_data){const img=new Image();img.onload=()=>ctx.drawImage(img,bx+4,by+4,bw-8,bh-8);img.src=r.sig_data;}
     setTimeout(()=>pg.pdfC.scrollIntoView({behavior:'smooth',block:'center'}),400);
   }
 }
