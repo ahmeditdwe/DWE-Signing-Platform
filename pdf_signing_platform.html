@@ -86,6 +86,10 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--te
 #aStatus{font-size:11px;color:var(--text3);margin-left:auto;}
 #adminPdfArea{flex:1;overflow:auto;background:#252525;display:flex;flex-direction:column;align-items:center;padding:24px;gap:20px;}
 
+/* Drop overlay — lives inside adminPdfArea */
+#dropOvl{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;color:var(--text2);font-size:14px;flex:1;width:100%;}
+#dropOvl.h{display:none;}
+
 /* My Files panel */
 #myFiles{display:none;flex-direction:column;flex:1;overflow:hidden;}
 #myFilesHeader{padding:12px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;flex-shrink:0;flex-wrap:wrap;background:var(--bg2);}
@@ -250,22 +254,10 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--te
 #signerInfoBox span{font-size:11px;color:var(--text3);}
 
 /* ── ONBOARDING OVERLAY ── */
-#onboardingOverlay{
-  position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:500;
-  display:flex;align-items:center;justify-content:center;
-  backdrop-filter:blur(4px);
-}
+#onboardingOverlay{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:500;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
 #onboardingOverlay.h{display:none;}
-.ob-card{
-  background:var(--bg2);border:1px solid var(--border);border-radius:16px;
-  width:480px;max-width:95vw;overflow:hidden;
-  box-shadow:0 30px 80px rgba(0,0,0,.6);
-}
-.ob-header{
-  background:linear-gradient(135deg,#1a0d00,#2a1500);
-  padding:28px 32px 20px;border-bottom:1px solid var(--border);
-  text-align:center;
-}
+.ob-card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;width:480px;max-width:95vw;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.6);}
+.ob-header{background:linear-gradient(135deg,#1a0d00,#2a1500);padding:28px 32px 20px;border-bottom:1px solid var(--border);text-align:center;}
 .ob-header .ob-logo{font-size:20px;font-weight:800;color:var(--orange);letter-spacing:1px;margin-bottom:4px;}
 .ob-header .ob-logo span{color:var(--text);}
 .ob-header h2{font-size:17px;font-weight:700;margin-bottom:4px;}
@@ -273,56 +265,30 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--te
 .ob-steps{padding:24px 32px;display:flex;flex-direction:column;gap:0;}
 .ob-step{display:flex;gap:14px;align-items:flex-start;padding:14px 0;border-bottom:1px solid var(--border);}
 .ob-step:last-child{border-bottom:none;}
-.ob-step-num{
-  width:32px;height:32px;border-radius:50%;background:var(--orange);
-  color:#fff;font-size:13px;font-weight:800;display:flex;align-items:center;
-  justify-content:center;flex-shrink:0;margin-top:1px;
-}
+.ob-step-num{width:32px;height:32px;border-radius:50%;background:var(--orange);color:#fff;font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
 .ob-step-body h4{font-size:13px;font-weight:700;margin-bottom:3px;}
 .ob-step-body p{font-size:12px;color:var(--text2);line-height:1.6;}
-.ob-signer-box{
-  margin:0 32px 20px;background:#1a0d00;border:1.5px solid var(--orange);
-  border-radius:8px;padding:12px 16px;display:flex;align-items:center;gap:12px;
-}
-.ob-signer-box .ob-avatar{
-  width:40px;height:40px;border-radius:50%;background:var(--orange);
-  display:flex;align-items:center;justify-content:center;
-  font-size:16px;font-weight:800;color:#fff;flex-shrink:0;
-}
+.ob-signer-box{margin:0 32px 20px;background:#1a0d00;border:1.5px solid var(--orange);border-radius:8px;padding:12px 16px;display:flex;align-items:center;gap:12px;}
+.ob-signer-box .ob-avatar{width:40px;height:40px;border-radius:50%;background:var(--orange);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#fff;flex-shrink:0;}
 .ob-signer-box .ob-signer-name{font-size:14px;font-weight:700;}
 .ob-signer-box .ob-signer-doc{font-size:11px;color:var(--text3);margin-top:2px;}
 .ob-footer{padding:0 32px 28px;display:flex;flex-direction:column;gap:10px;}
-.ob-start-btn{
-  width:100%;padding:14px;background:var(--orange);color:#fff;border:none;
-  border-radius:8px;font-size:15px;font-weight:800;cursor:pointer;
-  transition:background .2s;letter-spacing:.3px;
-}
+.ob-start-btn{width:100%;padding:14px;background:var(--orange);color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:800;cursor:pointer;transition:background .2s;letter-spacing:.3px;}
 .ob-start-btn:hover{background:var(--orange-d);}
 .ob-note{font-size:11px;color:var(--text3);text-align:center;line-height:1.5;}
 
-/* ── PULSE ANIMATION on signature box ── */
-@keyframes pulse-border{
-  0%{box-shadow:0 0 0 0 rgba(243,111,42,.6);}
-  70%{box-shadow:0 0 0 10px rgba(243,111,42,0);}
-  100%{box-shadow:0 0 0 0 rgba(243,111,42,0);}
-}
+/* ── PULSE ANIMATION ── */
+@keyframes pulse-border{0%{box-shadow:0 0 0 0 rgba(243,111,42,.6);}70%{box-shadow:0 0 0 10px rgba(243,111,42,0);}100%{box-shadow:0 0 0 0 rgba(243,111,42,0);}}
 .sig-box-highlight{animation:pulse-border 1.5s ease-out 3;}
 
-/* ── STEP INDICATOR in manager panel ── */
+/* ── STEP INDICATOR ── */
 .sign-steps{display:flex;gap:0;margin-bottom:4px;}
-.sign-step{flex:1;text-align:center;padding:6px 2px;font-size:10px;font-weight:700;
-  color:var(--text3);border-bottom:2px solid var(--border);transition:all .2s;}
+.sign-step{flex:1;text-align:center;padding:6px 2px;font-size:10px;font-weight:700;color:var(--text3);border-bottom:2px solid var(--border);transition:all .2s;}
 .sign-step.active{color:var(--orange);border-bottom-color:var(--orange);}
 .sign-step.done{color:var(--green-l);border-bottom-color:var(--green-l);}
 
 /* ── SCROLL HINT ── */
-#scrollHint{
-  position:fixed;bottom:80px;left:50%;transform:translateX(-50%);
-  background:var(--orange);color:#fff;padding:10px 20px;border-radius:24px;
-  font-size:12px;font-weight:700;z-index:100;display:flex;align-items:center;gap:8px;
-  box-shadow:0 4px 20px rgba(243,111,42,.4);cursor:pointer;
-  animation:bounce .8s ease-in-out infinite alternate;
-}
+#scrollHint{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--orange);color:#fff;padding:10px 20px;border-radius:24px;font-size:12px;font-weight:700;z-index:100;display:flex;align-items:center;gap:8px;box-shadow:0 4px 20px rgba(243,111,42,.4);cursor:pointer;animation:bounce .8s ease-in-out infinite alternate;}
 @keyframes bounce{from{transform:translateX(-50%) translateY(0);}to{transform:translateX(-50%) translateY(-6px);}}
 #scrollHint.h{display:none;}
 
@@ -404,17 +370,21 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--te
     <div id="adminToolbar">
       <button onclick="goAdmin('files')">← Back</button>
       <button id="uploadBtn" onclick="document.getElementById('fileInput').click()">📂 Upload PDF</button>
-      <input type="file" id="fileInput" accept=".pdf">
+      <!-- Single, canonical file input lives here, inside adminScreen -->
+      <input type="file" id="fileInput" accept=".pdf" style="display:none;">
       <button class="tbtn on" id="btnPlace" onclick="setTool('place')">＋ Place Box</button>
       <button class="tbtn" id="btnMove" onclick="setTool('move')">↖ Move</button>
       <span id="aStatus">Upload a PDF to begin</span>
     </div>
+
+    <!-- PDF area with drop overlay inside it -->
     <div id="adminPdfArea">
       <div id="dropOvl">
-        <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-        <p>Drop PDF here</p>
+        <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color:var(--text3)"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        <p style="font-size:14px;color:var(--text2);">Drop PDF here or click <strong style="color:var(--orange)">Upload PDF</strong></p>
       </div>
     </div>
+
     <div id="myFiles">
       <div id="myFilesHeader">
         <button class="mf-btn mf-btn-ghost" onclick="showScreen('landingScreen');document.getElementById('modeTag').style.display='none';allFolders=[];currentFolderId=null;">← Back</button>
@@ -427,13 +397,13 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--te
       <div id="myFilesInner"><div style="color:var(--text3);font-size:13px;text-align:center;margin-top:40px;">Loading…</div></div>
     </div>
   </div>
+
   <div id="adminRight">
     <div class="nav-tabs">
       <div class="nav-tab active" onclick="switchAdminTab('setup')">Setup</div>
       <div class="nav-tab" onclick="switchAdminTab('links')">Links</div>
       <div class="nav-tab" onclick="switchAdminTab('status')">Status</div>
     </div>
-    <!-- Setup tab -->
     <div id="tabSetup">
       <h3>Document</h3>
       <label class="panel-label">Session title</label>
@@ -451,14 +421,12 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--te
       <div class="sep"></div>
       <button id="publishBtn" disabled onclick="publishSession()">🚀 Publish &amp; Generate Links</button>
     </div>
-    <!-- Links tab -->
-    <div id="tabLinks" style="display:none;display:flex;flex-direction:column;gap:8px;">
+    <div id="tabLinks" style="display:none;flex-direction:column;gap:8px;">
       <h3>Signing Links</h3>
       <p style="font-size:11px;color:var(--text3);">Share each link with the respective signer.</p>
       <div id="linksArea" style="display:flex;flex-direction:column;gap:8px;"></div>
     </div>
-    <!-- Status tab -->
-    <div id="tabStatus" style="display:none;display:flex;flex-direction:column;gap:8px;">
+    <div id="tabStatus" style="display:none;flex-direction:column;gap:8px;">
       <h3>Signing Status</h3>
       <div id="progressSummary"></div>
       <div id="allSignedBanner">✅ All managers have signed!<br><small style="font-weight:400;font-size:11px;">Download the signed PDF above.</small></div>
@@ -475,7 +443,6 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--te
       <div class="mr-sub" id="mrSub">Loading your document…</div>
     </div>
     <div class="mr-body">
-      <!-- Step indicator -->
       <div class="sign-steps" id="signSteps">
         <div class="sign-step active" id="step1">① Choose</div>
         <div class="sign-step" id="step2">② Confirm</div>
@@ -486,8 +453,6 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--te
         <span id="siTitle"></span>
       </div>
       <div id="alreadySigned">✅ You have already<br>signed this document.</div>
-
-      <!-- Method tabs -->
       <div id="sigMethodSection">
         <label class="panel-label">Choose signature method:</label>
         <div class="sig-method-tabs">
@@ -495,8 +460,6 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--te
           <div class="smt" onclick="setSigMethod('type')">Aa Type</div>
           <div class="smt" onclick="setSigMethod('upload')">📎 Upload</div>
         </div>
-
-        <!-- DRAW -->
         <div id="drawPad" style="margin-top:10px;">
           <label class="panel-label">Draw your signature:</label>
           <canvas id="sigCanvas" width="264" height="140"></canvas>
@@ -505,8 +468,6 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--te
             <button style="flex:1;padding:8px;border-radius:6px;border:none;cursor:pointer;font-size:12px;font-weight:700;background:var(--green);color:#fff;" onclick="confirmSig()">Use This ✓</button>
           </div>
         </div>
-
-        <!-- TYPE -->
         <div id="typePad" style="margin-top:10px;">
           <label class="panel-label">Type your name:</label>
           <input id="typedSigInput" placeholder="Your Name" oninput="previewTypedSig()">
@@ -520,20 +481,17 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--te
           <canvas id="typedPreview" width="264" height="80" style="background:#fff;border-radius:6px;border:1px solid var(--border);width:100%;margin-top:8px;display:block;"></canvas>
           <button onclick="confirmSig()" style="width:100%;margin-top:8px;padding:8px;border-radius:6px;border:none;cursor:pointer;font-size:12px;font-weight:700;background:var(--green);color:#fff;">Use This ✓</button>
         </div>
-
-        <!-- UPLOAD -->
         <div id="uploadPad" style="margin-top:10px;">
           <label class="panel-label">Upload signature image:</label>
           <div class="upload-zone" onclick="document.getElementById('sigImgInput').click()">
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color:var(--text3)"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
             <p>Click to upload image</p>
           </div>
-          <input type="file" id="sigImgInput" accept="image/*" onchange="loadUploadedSig(event)">
+          <input type="file" id="sigImgInput" accept="image/*" style="display:none;" onchange="loadUploadedSig(event)">
           <img id="uploadedPreview">
           <button id="useUploadBtn" onclick="confirmSig()" style="display:none;width:100%;padding:8px;border-radius:6px;border:none;cursor:pointer;font-size:12px;font-weight:700;background:var(--green);color:#fff;">Use This ✓</button>
         </div>
       </div>
-
       <div id="sigMsg"></div>
       <button id="signMyBoxBtn" disabled onclick="signMyBox()">✍️ Sign My Box</button>
     </div>
@@ -558,24 +516,15 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--te
     <div class="ob-steps">
       <div class="ob-step">
         <div class="ob-step-num">1</div>
-        <div class="ob-step-body">
-          <h4>Review the document</h4>
-          <p>Scroll through the PDF to read its contents before signing.</p>
-        </div>
+        <div class="ob-step-body"><h4>Review the document</h4><p>Scroll through the PDF to read its contents before signing.</p></div>
       </div>
       <div class="ob-step">
         <div class="ob-step-num">2</div>
-        <div class="ob-step-body">
-          <h4>Choose how to sign</h4>
-          <p>Draw your signature with a mouse, type your name, or upload a signature image from the panel on the right.</p>
-        </div>
+        <div class="ob-step-body"><h4>Choose how to sign</h4><p>Draw your signature with a mouse, type your name, or upload a signature image.</p></div>
       </div>
       <div class="ob-step">
         <div class="ob-step-num">3</div>
-        <div class="ob-step-body">
-          <h4>Click "Sign My Box"</h4>
-          <p>Your signature will be placed in the highlighted orange box on the document. The box will turn green when signed.</p>
-        </div>
+        <div class="ob-step-body"><h4>Click "Sign My Box"</h4><p>Your signature will be placed in the highlighted orange box. It turns green when signed.</p></div>
       </div>
     </div>
     <div class="ob-footer">
@@ -590,12 +539,8 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--te
   ✍️ Your signature box is below — click to jump to it ↓
 </div>
 
-<!-- DROP OVERLAY -->
-<div id="dropOvl" class="h">
-  <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-  <p>Drop PDF here</p>
-</div>
-<input type="file" id="fileInput" accept=".pdf">
+<!-- MODAL BACKDROP -->
+<div class="modal-backdrop h" id="modalBackdrop">
   <div class="modal" id="modalBox"></div>
 </div>
 
@@ -617,13 +562,11 @@ async function sb(path,method='GET',body=null){
 
 function toast(msg,dur=2500){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),dur);}
 
-// ── SIMPLE PASSWORD HASH (SHA-256 via SubtleCrypto) ──
 async function hashPass(pw){
   const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(pw));
   return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
 }
 
-// ── SESSION ──
 let currentAdmin=JSON.parse(localStorage.getItem('dwe_admin')||'null');
 
 function showScreen(id){
@@ -650,7 +593,6 @@ function setAdminUI(){
   document.getElementById('welcomeName').textContent=currentAdmin.name.split(' ')[0];
 }
 
-// ── AUTH ──
 function switchAuthTab(tab){
   document.getElementById('tabSignIn').classList.toggle('active',tab==='signin');
   document.getElementById('tabSignUp').classList.toggle('active',tab==='signup');
@@ -669,7 +611,6 @@ async function doSignIn(){
   const hash=await hashPass(pass);
   const res=await sb('admins?email=eq.'+encodeURIComponent(email)+'&select=id,name,email');
   if(!res||!res[0]){document.getElementById('authErr').textContent='No account found with this email';return;}
-  // verify hash
   const check=await sb('admins?email=eq.'+encodeURIComponent(email)+'&password_hash=eq.'+hash+'&select=id,name,email');
   if(!check||!check[0]){document.getElementById('authErr').textContent='Incorrect password';return;}
   currentAdmin=check[0];
@@ -693,7 +634,6 @@ async function doSignUp(){
   setAdminUI();showScreen('landingScreen');toast('Account created! Welcome, '+name);
 }
 
-// ── LANDING ──
 function goAdmin(mode){
   document.getElementById('modeTag').style.display='flex';
   document.getElementById('modeTag').className='modeTag tag-admin';
@@ -711,21 +651,17 @@ function goAdmin(mode){
     pdfArea.style.display='flex';
     toolbar.style.display='flex';
     myFiles.style.display='none';
-    // Only show drop overlay if no PDF loaded yet
     if(!pdfDoc) document.getElementById('dropOvl').classList.remove('h');
     else document.getElementById('dropOvl').classList.add('h');
   }
 }
 
-// ── MY FILES ──
-// ── MY FILES & FOLDERS ──
 const FOLDER_COLORS=['#F36F2A','#1565c0','#2e7d32','#7b1fa2','#c62828','#00838f','#f57f17','#4e342e'];
 let currentFolderId=null, allFolders=[];
 
 async function loadMyFiles(folderId=null){
   if(!currentAdmin)return;
   currentFolderId=folderId;
-  // Breadcrumb
   const bc=document.getElementById('mfBreadcrumb');
   if(!folderId){
     bc.innerHTML=`<span onclick="navToFolder(null)">All Files</span>`;
@@ -736,13 +672,11 @@ async function loadMyFiles(folderId=null){
   const inner=document.getElementById('myFilesInner');
   inner.innerHTML='<div style="color:var(--text3);font-size:13px;text-align:center;margin-top:30px;">Loading…</div>';
 
-  // Load folders (only at root)
   if(!folderId){
     const foldersRes=await sb('folders?admin_id=eq.'+currentAdmin.id+'&order=created_at.asc');
     allFolders=foldersRes||[];
   }
 
-  // Load sessions
   let sessQuery='signing_sessions?admin_id=eq.'+currentAdmin.id+'&deleted=eq.false&order=created_at.desc&select=id,title,created_at,completed,folder_id,pdf_base64,merged_pdf_base64';
   if(folderId) sessQuery+='&folder_id=eq.'+folderId;
   else sessQuery+='&folder_id=is.null';
@@ -750,7 +684,6 @@ async function loadMyFiles(folderId=null){
 
   inner.innerHTML='';
 
-  // Folders first (root only)
   if(!folderId && allFolders.length>0){
     const fHeader=document.createElement('div');
     fHeader.innerHTML='<p style="font-size:11px;color:var(--text3);font-weight:700;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px;">Folders</p>';
@@ -794,8 +727,6 @@ async function loadMyFiles(folderId=null){
     const card=document.createElement('div');
     card.className='session-card';
     const badges=(signers||[]).map(r=>`<span class="badge ${r.signed?'badge-signed':'badge-pending'}">${r.name}</span>`).join('');
-    // Build folder options for move
-    const folderOpts=allFolders.map(f=>`<option value="${f.id}" ${s.folder_id===f.id?'selected':''}>${f.name}</option>`).join('');
     card.innerHTML=`
       <div class="sc-top">
         <h4>${s.title||'Untitled'}</h4>
@@ -823,7 +754,6 @@ function navToFolder(folderId){
   loadMyFiles(folderId);
 }
 
-// ── MODAL SYSTEM ──
 let modalSelectedColor=FOLDER_COLORS[0];
 function openModal(type, id='', name='', extra=''){
   const bd=document.getElementById('modalBackdrop');
@@ -834,7 +764,7 @@ function openModal(type, id='', name='', extra=''){
     box.innerHTML=`
       <h3>📁 New Folder</h3>
       <div><label class="panel-label">Folder name</label>
-        <input id="mInput" placeholder="e.g. Q2 Contracts" value="" /></div>
+        <input id="mInput" placeholder="e.g. Q2 Contracts" /></div>
       <div><label class="panel-label">Color</label>
         <div class="color-row">${FOLDER_COLORS.map(c=>`<div class="color-dot${c===modalSelectedColor?' selected':''}" style="background:${c}" onclick="pickColor('${c}',this)"></div>`).join('')}</div></div>
       <div class="modal-row">
@@ -884,7 +814,6 @@ function openModal(type, id='', name='', extra=''){
         <button class="modal-confirm" onclick="moveSession('${id}')">Move</button>
       </div>`;
   }
-  // Close on backdrop click
   bd.onclick=e=>{if(e.target===bd)closeModal();};
 }
 
@@ -908,7 +837,6 @@ async function renameFolder(id){
   closeModal();toast('Folder renamed');loadMyFiles(currentFolderId);
 }
 async function deleteFolder(id){
-  // Move sessions to root first
   await sb('signing_sessions?folder_id=eq.'+id,'PATCH',{folder_id:null});
   await sb('folders?id=eq.'+id,'DELETE');
   closeModal();toast('Folder deleted');allFolders=allFolders.filter(f=>f.id!==id);loadMyFiles(null);
@@ -942,7 +870,6 @@ async function downloadStoredPDF(sessionId){
 }
 
 async function openExistingSession(s, signers){
-  // Switch view
   document.getElementById('adminPdfArea').style.display='flex';
   document.getElementById('adminToolbar').style.display='flex';
   document.getElementById('myFiles').style.display='none';
@@ -950,12 +877,10 @@ async function openExistingSession(s, signers){
   document.getElementById('modeTag').style.display='flex';
   publishedSessionId=s.id;
 
-  // Show loading state
   document.getElementById('aStatus').textContent='Loading…';
   document.getElementById('publishBtn').disabled=true;
   document.getElementById('publishBtn').textContent='✓ Published';
 
-  // Render PDF
   const pdfData=base64ToUint8Array(s.pdf_base64);
   pdfDoc=await pdfjsLib.getDocument({data:pdfData}).promise;
   pdfPages=[];
@@ -963,16 +888,13 @@ async function openExistingSession(s, signers){
   for(let i=1;i<=pdfDoc.numPages;i++) await renderAdminPage(i);
   document.getElementById('aStatus').textContent=s.title||'Document';
 
-  // Fetch full signers with all fields
   const fullSigners=await sb('signers?session_id=eq.'+s.id+'&select=*');
 
-  // Restore sig boxes — coords stored as % in DB
   sigBoxes=[];
   if(fullSigners){
     for(const r of fullSigners){
       const wrap=document.querySelector(`.page-wrap[data-page="${r.page_num}"]`);
       if(!wrap) continue;
-      // Pass % directly using the special _w/_h/_page trick
       addSigBox(wrap, r.box_x, r.box_y, r.name,
         {_page: r.page_num, _w: r.box_w, _h: r.box_h});
       const b=sigBoxes[sigBoxes.length-1];
@@ -985,11 +907,8 @@ async function openExistingSession(s, signers){
     }
   }
   updateBoxList();
-
-  // Draw signatures onto canvas (await so they appear before anything else)
   await drawSignaturesOnCanvas(fullSigners||[]);
 
-  // Rebuild Links tab from DB — works even after page refresh
   const linksArea=document.getElementById('linksArea');
   linksArea.innerHTML='';
   if(fullSigners&&fullSigners.length>0){
@@ -1006,7 +925,6 @@ async function openExistingSession(s, signers){
     });
   }
 
-  // Status tab
   updateProgress(fullSigners||[]);
   const allSigned=fullSigners&&fullSigners.length>0&&fullSigners.every(r=>r.signed);
   document.getElementById('saveBtn').disabled=false;
@@ -1027,8 +945,15 @@ let boxCounter=0,publishedSessionId=null,pollInterval=null;
 document.getElementById('fileInput').onchange=e=>{const f=e.target.files[0];if(f)loadAdminPDF(f);};
 const pdfArea=document.getElementById('adminPdfArea');
 pdfArea.addEventListener('dragover',e=>{e.preventDefault();if(pdfDoc)return;document.getElementById('dropOvl').classList.remove('h');});
-document.getElementById('dropOvl').addEventListener('dragleave',()=>document.getElementById('dropOvl').classList.add('h'));
-pdfArea.addEventListener('drop',e=>{e.preventDefault();document.getElementById('dropOvl').classList.add('h');const f=e.dataTransfer.files[0];if(f&&f.type==='application/pdf')loadAdminPDF(f);});
+document.getElementById('dropOvl').addEventListener('dragleave',e=>{
+  if(!pdfArea.contains(e.relatedTarget)) document.getElementById('dropOvl').classList.add('h');
+});
+pdfArea.addEventListener('drop',e=>{
+  e.preventDefault();
+  document.getElementById('dropOvl').classList.add('h');
+  const f=e.dataTransfer.files[0];
+  if(f&&f.type==='application/pdf') loadAdminPDF(f);
+});
 
 async function loadAdminPDF(file){
   document.getElementById('aStatus').textContent='Loading…';
@@ -1062,7 +987,6 @@ async function renderAdminPage(num){
   hitC.addEventListener('click',e=>{
     if(adminTool!=='place')return;
     const r=hitC.getBoundingClientRect();
-    // Use canvas pixel coords (not CSS coords) for storage
     const scX=vp.width/r.width, scY=vp.height/r.height;
     const x=(e.clientX-r.left)*scX, y=(e.clientY-r.top)*scY;
     const name=document.getElementById('signerName').value.trim()||'Signer';
@@ -1079,40 +1003,28 @@ function setTool(t){
   document.getElementById('btnMove').classList.toggle('on',t==='move');
 }
 
-function addSigBox(wrap, x, y, label, pageNum, pageW, pageH, noAnim=false){
+function addSigBox(wrap, x, y, label, pageNum, pageW, pageH){
   if(!wrap) return;
-  // If pageW/pageH provided, x/y are in canvas pixels — convert to %
-  // If not provided (restoring from %), x/y are already %
   let xPct, yPct, wPct, hPct;
   if(pageW && pageH){
-    xPct = (x - 90) / pageW * 100;
-    yPct = (y - 30) / pageH * 100;
-    wPct = 190 / pageW * 100;
-    hPct = 62  / pageH * 100;
+    xPct=(x-90)/pageW*100; yPct=(y-30)/pageH*100;
+    wPct=190/pageW*100; hPct=62/pageH*100;
   } else {
-    // restoring — x,y,w,h passed as % directly
-    xPct = x; yPct = y; wPct = pageNum._w; hPct = pageNum._h;
-    pageNum = pageNum._page;
+    xPct=x; yPct=y; wPct=pageNum._w; hPct=pageNum._h;
+    pageNum=pageNum._page;
   }
   boxCounter++;
   const id='b'+boxCounter;
   const el=document.createElement('div');
   el.className='sig-box'; el.id=id;
-  el.style.left  = xPct+'%';
-  el.style.top   = yPct+'%';
-  el.style.width = wPct+'%';
-  el.style.height= hPct+'%';
+  el.style.left=xPct+'%'; el.style.top=yPct+'%';
+  el.style.width=wPct+'%'; el.style.height=hPct+'%';
   el.innerHTML=`<span class="bl">${label}</span><span class="bh">Signature field</span>
     <button class="bdel" onclick="removeBox('${id}')">×</button><div class="brz"></div>`;
   makeDrag(el); makeResize(el.querySelector('.brz'), el, wrap);
   wrap.appendChild(el);
-  sigBoxes.push({id, el, label, pageNum, signed:false, dbId:null, token:null,
-    getPct:()=>({
-      xPct: parseFloat(el.style.left),
-      yPct: parseFloat(el.style.top),
-      wPct: parseFloat(el.style.width),
-      hPct: parseFloat(el.style.height)
-    })
+  sigBoxes.push({id,el,label,pageNum,signed:false,dbId:null,token:null,
+    getPct:()=>({xPct:parseFloat(el.style.left),yPct:parseFloat(el.style.top),wPct:parseFloat(el.style.width),hPct:parseFloat(el.style.height)})
   });
   updateBoxList();
 }
@@ -1142,16 +1054,15 @@ function makeDrag(el){
     if(e.target.classList.contains('bdel')||e.target.classList.contains('brz')) return;
     if(adminTool!=='move') return;
     drag=true; sx=e.clientX; sy=e.clientY;
-    ox=parseFloat(el.style.left)||0;
-    oy=parseFloat(el.style.top)||0;
+    ox=parseFloat(el.style.left)||0; oy=parseFloat(el.style.top)||0;
     e.preventDefault();
   });
   document.addEventListener('mousemove',e=>{
     if(!drag) return;
     const wrap=el.parentElement;
     const pw=wrap.offsetWidth, ph=wrap.offsetHeight;
-    el.style.left = (ox + (e.clientX-sx)/pw*100)+'%';
-    el.style.top  = (oy + (e.clientY-sy)/ph*100)+'%';
+    el.style.left=(ox+(e.clientX-sx)/pw*100)+'%';
+    el.style.top=(oy+(e.clientY-sy)/ph*100)+'%';
   });
   document.addEventListener('mouseup',()=>drag=false);
 }
@@ -1165,8 +1076,8 @@ function makeResize(handle, el, wrap){
   document.addEventListener('mousemove',e=>{
     if(!drag) return;
     const pw=wrap.offsetWidth, ph=wrap.offsetHeight;
-    el.style.width  = Math.max(8, (sw+e.clientX-sx)/pw*100)+'%';
-    el.style.height = Math.max(4, (sh+e.clientY-sy)/ph*100)+'%';
+    el.style.width=Math.max(8,(sw+e.clientX-sx)/pw*100)+'%';
+    el.style.height=Math.max(4,(sh+e.clientY-sy)/ph*100)+'%';
   });
   document.addEventListener('mouseup',()=>drag=false);
 }
@@ -1180,7 +1091,6 @@ function switchAdminTab(t){
   });
 }
 
-// ── PUBLISH ──
 async function publishSession(){
   if(!pdfB64){toast('Upload a PDF first');return;}
   if(sigBoxes.length===0){toast('Place at least one box');return;}
@@ -1196,9 +1106,8 @@ async function publishSession(){
     const pg=pdfPages.find(p=>p.num===b.pageNum);
     if(!pg) continue;
     const {xPct,yPct,wPct,hPct}=b.getPct();
-    // Store as % in DB — reconstruct canvas px on load
-    const data={session_id:publishedSessionId, name:b.label, page_num:b.pageNum,
-      box_x: xPct, box_y: yPct, box_w: wPct, box_h: hPct};
+    const data={session_id:publishedSessionId,name:b.label,page_num:b.pageNum,
+      box_x:xPct,box_y:yPct,box_w:wPct,box_h:hPct};
     const res=await sb('signers','POST',data);
     if(res&&res[0]){
       b.dbId=res[0].id;b.token=res[0].token;
@@ -1216,7 +1125,6 @@ async function publishSession(){
 }
 
 function copyLink(url,btn){navigator.clipboard.writeText(url).then(()=>{btn.textContent='✓ Copied!';setTimeout(()=>btn.textContent='📋 Copy',2000);});}
-
 function startPolling(){if(pollInterval)clearInterval(pollInterval);pollInterval=setInterval(pollSigningStatus,5000);pollSigningStatus();}
 
 async function pollSigningStatus(){
@@ -1248,7 +1156,8 @@ function updateProgress(signers){
       <span style="font-size:12px;">${r.name}</span>
       <span class="${r.signed?'st-s':'st-p'}" style="font-size:11px;">${r.signed?'✅ Signed':'⏳ Pending'}</span>
     </div>`).join('')+
-    `<div style="margin-top:10px;"><div class="prog-bar" style="height:8px;"><div class="prog-fill" style="width:${pct}%;"></div></div><div style="text-align:right;font-size:11px;color:var(--text2);margin-top:4px;">${done}/${total} signed</div></div>`;
+    `<div style="margin-top:10px;"><div class="prog-bar" style="height:8px;"><div class="prog-fill" style="width:${pct}%;"></div></div>
+    <div style="text-align:right;font-size:11px;color:var(--text2);margin-top:4px;">${done}/${total} signed</div></div>`;
 }
 
 async function drawSignaturesOnCanvas(signers){
@@ -1257,7 +1166,6 @@ async function drawSignaturesOnCanvas(signers){
   await Promise.all(signed.map(r=>new Promise(resolve=>{
     const pg=pdfPages.find(p=>p.num===r.page_num);
     if(!pg){resolve();return;}
-    // Convert % coords to canvas pixels
     const cw=pg.pdfC.width, ch=pg.pdfC.height;
     const bx=r.box_x/100*cw, by=r.box_y/100*ch;
     const bw=r.box_w/100*cw, bh=r.box_h/100*ch;
@@ -1265,19 +1173,16 @@ async function drawSignaturesOnCanvas(signers){
     const img=new Image();
     img.onload=()=>{
       ctx.fillStyle='rgba(255,255,255,.94)';
-      ctx.fillRect(bx+1, by+1, bw-2, bh-2);
-      ctx.drawImage(img, bx+6, by+5, bw-12, bh-10);
+      ctx.fillRect(bx+1,by+1,bw-2,bh-2);
+      ctx.drawImage(img,bx+6,by+5,bw-12,bh-10);
       ctx.strokeStyle='#4caf50'; ctx.lineWidth=1.5;
-      ctx.strokeRect(bx+1, by+1, bw-2, bh-2);
+      ctx.strokeRect(bx+1,by+1,bw-2,bh-2);
       resolve();
     };
     img.onerror=resolve;
     img.src=r.sig_data;
   })));
 }
-
-// Keep old name as alias for polling
-function loadSignedSigsOntoCanvas(signers){drawSignaturesOnCanvas(signers);}
 
 // ── MANAGER ──
 let managerSig=null,mySignerRow=null,managerPdfPages=[],sigMethod='draw';
@@ -1302,7 +1207,6 @@ async function loadSignerView(token){
   const sess=await sb('signing_sessions?id=eq.'+mySignerRow.session_id+'&select=*');
   if(!sess||!sess[0]){toast('Session not found');return;}
   document.getElementById('mrSub').textContent=sess[0].title||'Signing Request';
-  // Show onboarding after short delay so PDF starts loading in bg
   setTimeout(()=>showOnboarding(mySignerRow, sess[0].title), 400);
   const info=document.getElementById('signerInfoBox');
   info.style.display='block';
@@ -1342,62 +1246,53 @@ async function loadSignerView(token){
     ctx.fillText(r.signed?'✓ Signed':r.name+' — Sign here',r.box_x+r.box_w/2,r.box_y+r.box_h/2+5);
     ctx.textAlign='left';
     if(r.signed&&r.sig_data){const img=new Image();img.onload=()=>ctx.drawImage(img,r.box_x+4,r.box_y+4,r.box_w-8,r.box_h-8);img.src=r.sig_data;}
-    // Scroll to box
     setTimeout(()=>pg.pdfC.scrollIntoView({behavior:'smooth',block:'center'}),400);
   }
 }
 
-// ── ONBOARDING ──
 function showOnboarding(signerRow, sessionTitle){
-  const name = signerRow.name || 'Signer';
-  document.getElementById('obSignerName').textContent = name;
-  document.getElementById('obAvatar').textContent = name.charAt(0).toUpperCase();
-  document.getElementById('obDocTitle').textContent = sessionTitle || 'Signing Request';
-  document.getElementById('obTitle').textContent = signerRow.signed
-    ? 'You have already signed this document'
-    : 'You have a document to sign';
+  const name=signerRow.name||'Signer';
+  document.getElementById('obSignerName').textContent=name;
+  document.getElementById('obAvatar').textContent=name.charAt(0).toUpperCase();
+  document.getElementById('obDocTitle').textContent=sessionTitle||'Signing Request';
+  document.getElementById('obTitle').textContent=signerRow.signed?'You have already signed this document':'You have a document to sign';
   if(signerRow.signed){
-    document.querySelector('.ob-start-btn').textContent = '📄 View Document';
-    document.querySelector('.ob-note').textContent = 'This document has already been signed by you.';
+    document.querySelector('.ob-start-btn').textContent='📄 View Document';
+    document.querySelector('.ob-note').textContent='This document has already been signed by you.';
   }
   document.getElementById('onboardingOverlay').classList.remove('h');
 }
 
 function dismissOnboarding(){
   document.getElementById('onboardingOverlay').classList.add('h');
-  // Show scroll hint if box is not in viewport
   setTimeout(()=>{
-    if(!mySignerRow || mySignerRow.signed) return;
+    if(!mySignerRow||mySignerRow.signed) return;
     const pg=managerPdfPages.find(p=>p.num===mySignerRow.page_num);
     if(!pg) return;
     const rect=pg.pdfC.getBoundingClientRect();
-    const inView=rect.top < window.innerHeight && rect.bottom > 0;
+    const inView=rect.top<window.innerHeight&&rect.bottom>0;
     if(!inView) document.getElementById('scrollHint').classList.remove('h');
-    // Pulse the box
     if(pg.pdfC.parentElement){
       pg.pdfC.parentElement.classList.add('sig-box-highlight');
       setTimeout(()=>pg.pdfC.parentElement.classList.remove('sig-box-highlight'),5000);
     }
-  }, 300);
+  },300);
 }
 
 function scrollToBox(){
   document.getElementById('scrollHint').classList.add('h');
   const pg=managerPdfPages.find(p=>p.num===mySignerRow?.page_num);
-  if(pg) pg.pdfC.scrollIntoView({behavior:'smooth', block:'center'});
+  if(pg) pg.pdfC.scrollIntoView({behavior:'smooth',block:'center'});
 }
 
-// Hide scroll hint when user scrolls near the box
-document.addEventListener('scroll', ()=>{
+document.addEventListener('scroll',()=>{
   if(!mySignerRow) return;
   const pg=managerPdfPages.find(p=>p.num===mySignerRow.page_num);
   if(!pg) return;
   const rect=pg.pdfC.getBoundingClientRect();
-  if(rect.top < window.innerHeight && rect.bottom > 0)
-    document.getElementById('scrollHint').classList.add('h');
-}, true);
+  if(rect.top<window.innerHeight&&rect.bottom>0) document.getElementById('scrollHint').classList.add('h');
+},true);
 
-// Step indicator updater
 function setSignStep(n){
   [1,2,3].forEach(i=>{
     const el=document.getElementById('step'+i);
@@ -1416,7 +1311,6 @@ function setSigMethod(m){
   setSignStep(1);
 }
 
-// Draw
 const sigCanvas=document.getElementById('sigCanvas'),sigCtx=sigCanvas.getContext('2d');
 let sigP=false;
 function sp(e){const r=sigCanvas.getBoundingClientRect(),sx=sigCanvas.width/r.width,sy=sigCanvas.height/r.height,src=e.touches?e.touches[0]:e;return[(src.clientX-r.left)*sx,(src.clientY-r.top)*sy];}
@@ -1429,7 +1323,6 @@ sigCanvas.addEventListener('touchmove',e=>{e.preventDefault();if(!sigP)return;co
 sigCanvas.addEventListener('touchend',()=>sigP=false);
 function clearSig(){sigCtx.clearRect(0,0,sigCanvas.width,sigCanvas.height);managerSig=null;document.getElementById('signMyBoxBtn').disabled=true;}
 
-// Type
 function previewTypedSig(){
   const text=document.getElementById('typedSigInput').value;
   const c=document.getElementById('typedPreview'),ctx=c.getContext('2d');
@@ -1445,7 +1338,6 @@ function selectFont(el){
   previewTypedSig();
 }
 
-// Upload
 function loadUploadedSig(e){
   const file=e.target.files[0];if(!file)return;
   const reader=new FileReader();
@@ -1459,18 +1351,13 @@ function loadUploadedSig(e){
 }
 
 function confirmSig(){
-  if(sigMethod==='draw'){
-    managerSig=sigCanvas.toDataURL('image/png');
-  } else if(sigMethod==='type'){
-    const c=document.getElementById('typedPreview');managerSig=c.toDataURL('image/png');
-  } else if(sigMethod==='upload'){
-    managerSig=uploadedSigData;
-  }
+  if(sigMethod==='draw'){managerSig=sigCanvas.toDataURL('image/png');}
+  else if(sigMethod==='type'){managerSig=document.getElementById('typedPreview').toDataURL('image/png');}
+  else if(sigMethod==='upload'){managerSig=uploadedSigData;}
   if(!managerSig){toast('Please provide a signature first');return;}
   document.getElementById('signMyBoxBtn').disabled=false;
   document.getElementById('sigMsg').textContent='✓ Ready — click "Sign My Box" below';
   setSignStep(2);
-  // Scroll hint + pulse box
   document.getElementById('scrollHint').classList.remove('h');
   const pg=managerPdfPages.find(p=>p.num===mySignerRow?.page_num);
   if(pg) pg.pdfC.parentElement.classList.add('sig-box-highlight');
@@ -1480,17 +1367,9 @@ async function signMyBox(){
   if(!managerSig){toast('Confirm your signature first');return;}
   document.getElementById('signMyBoxBtn').disabled=true;
   document.getElementById('signMyBoxBtn').innerHTML='<span class="spinner"></span>Saving…';
-  const sigType=sigMethod;
-  const body={signed:true,sig_data:managerSig,sig_type:sigType,signed_at:new Date().toISOString()};
+  const body={signed:true,sig_data:managerSig,sig_type:sigMethod,signed_at:new Date().toISOString()};
   const res=await sb('signers?id=eq.'+mySignerRow.id,'PATCH',body);
   if(!res){toast('Error saving — try again');document.getElementById('signMyBoxBtn').disabled=false;return;}
-  const r=mySignerRow;
-  const pg=managerPdfPages.find(p=>p.num===r.page_num);
-  if(pg && pg._drawBox){
-    const img=new Image();
-    img.onload=()=>pg._drawBox(true, img);
-    img.src=managerSig;
-  }
   document.getElementById('signMyBoxBtn').textContent='✅ Signed!';
   document.getElementById('alreadySigned').style.display='block';
   document.getElementById('sigMethodSection').style.display='none';
@@ -1500,7 +1379,6 @@ async function signMyBox(){
   toast('Signature saved!',3000);
 }
 
-// ── GENERATE, STORE & DOWNLOAD PDF ──
 async function generateAndStoreMergedPDF(){
   if(!pdfPages||pdfPages.length===0)return null;
   const{jsPDF}=window.jspdf;
@@ -1510,15 +1388,13 @@ async function generateAndStoreMergedPDF(){
     const m=document.createElement('canvas');
     m.width=pdfC.width;m.height=pdfC.height;
     const mc=m.getContext('2d');
-    mc.drawImage(pdfC,0,0);
-    mc.drawImage(drawC,0,0);
+    mc.drawImage(pdfC,0,0);mc.drawImage(drawC,0,0);
     const img=m.toDataURL('image/jpeg',.92);
     const pw=pdf.internal.pageSize.getWidth(),ph=pdf.internal.pageSize.getHeight();
     if(!first)pdf.addPage();first=false;
     pdf.addImage(img,'JPEG',0,0,pw,ph);
   }
   const b64=pdf.output('datauristring');
-  // Store merged PDF in Supabase
   if(publishedSessionId){
     await sb('signing_sessions?id=eq.'+publishedSessionId,'PATCH',{
       merged_pdf_base64:b64,completed:true,completed_at:new Date().toISOString()
@@ -1531,22 +1407,15 @@ async function savePDF(){
   document.getElementById('saveBtn').innerHTML='<span class="spinner"></span>Generating…';
   document.getElementById('saveBtn').disabled=true;
   try{
-    // Try to get stored merged PDF first
     let b64=null;
     if(publishedSessionId){
       const sess=await sb('signing_sessions?id=eq.'+publishedSessionId+'&select=merged_pdf_base64,completed');
-      if(sess&&sess[0]&&sess[0].merged_pdf_base64){
-        b64=sess[0].merged_pdf_base64;
-      }
+      if(sess&&sess[0]&&sess[0].merged_pdf_base64) b64=sess[0].merged_pdf_base64;
     }
-    // If not stored yet, generate it now
     if(!b64) b64=await generateAndStoreMergedPDF();
     if(!b64){toast('Nothing to download yet');return;}
-    // Trigger download
     const a=document.createElement('a');
-    a.href=b64;
-    a.download='signed_document.pdf';
-    a.click();
+    a.href=b64;a.download='signed_document.pdf';a.click();
     toast('PDF downloaded!',2000);
   }finally{
     document.getElementById('saveBtn').innerHTML='💾 Download Signed PDF';
@@ -1554,21 +1423,16 @@ async function savePDF(){
   }
 }
 
-// ── UTILS ──
 function arrayBufferToBase64(b){let s='';const u=new Uint8Array(b);for(let i=0;i<u.byteLength;i++)s+=String.fromCharCode(u[i]);return btoa(s);}
 function base64ToUint8Array(b64){
-  // Strip data URI prefix if present (e.g. "data:application/pdf;base64,...")
-  const raw=b64.includes(',') ? b64.split(',')[1] : b64;
-  const b=atob(raw);
-  const a=new Uint8Array(b.length);
+  const raw=b64.includes(',')?b64.split(',')[1]:b64;
+  const b=atob(raw);const a=new Uint8Array(b.length);
   for(let i=0;i<b.length;i++) a[i]=b.charCodeAt(i);
   return a;
 }
 
-// ── AUTO-LOAD FROM TOKEN ──
 const urlToken=new URLSearchParams(location.search).get('token');
 if(urlToken){
-  // Manager view — no auth needed
   document.getElementById('saveBtn').style.display='none';
   document.getElementById('logoutBtn').style.display='none';
   showScreen('managerScreen');
